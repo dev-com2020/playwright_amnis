@@ -1,4 +1,4 @@
-name: Run Behave Tests
+name: Run API Tests
 
 on:
   push:
@@ -11,17 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      fastapi:
-        image: tiangolo/uvicorn-gunicorn-fastapi:python3.9
+      api:
+        build:
+          context: .
         ports:
-          - "8000:80"
-        env:
-          MODULE_NAME: "app.main"
+          - "8000:8000"
         options: >-
-          --health-cmd="curl --fail http://localhost:8000/ || exit 1"
-          --health-interval=15s
-          --health-timeout=10s
-          --health-retries=10
+          --health-cmd="curl --fail http://localhost:8000/ping || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
     - name: Checkout repository
@@ -35,12 +34,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install behave requests
+        pip install -r requirements.txt
 
     - name: Run Behave tests
       run: |
-        mkdir -p reports
-        behave features/ --junit --junit-directory reports
+        behave features/
 
     - name: Upload Test Results
       if: always()
