@@ -39,11 +39,12 @@ jobs:
 
     - name: Run Behave tests
       run: |
-        behave features/
+        mkdir -p reports
+        behave features/ --junit --junit-directory reports
 
     - name: Upload Test Results
       if: always()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: behave-results
         path: reports/
